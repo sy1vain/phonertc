@@ -113,14 +113,30 @@ Session.prototype.createOrUpdateStream = function () {
     this.peerConnection.removeStream(this.localStream);
   }
 
+  if (this.config.streams.audio instanceof MediaStream) {
+    this.peerConnection.removeStream(this.config.streams.audio);
+  }
+
+  if (this.config.streams.video instanceof MediaStream) {
+    this.peerConnection.removeStream(this.config.streams.video);
+  }
+
   this.localStream = new MediaStream();
-  
-  if (this.config.streams.audio) {
+
+  if (this.config.streams.audio===true) {
     this.localStream.addTrack(localAudioTrack);
   }
 
-  if (this.config.streams.video) {
+  if (this.config.streams.video===true) {
     this.localStream.addTrack(localVideoTrack);
+  }
+
+  if (this.config.streams.audio instanceof MediaStream) {
+    this.peerConnection.addStream(this.config.streams.audio);
+  }
+
+  if (this.config.streams.video instanceof MediaStream) {
+    this.peerConnection.addStream(this.config.streams.video);
   }
 
   this.peerConnection.addStream(this.localStream);
@@ -186,9 +202,9 @@ Session.prototype.call = function () {
     }
   }
 
-  var missingStreams = { 
-    video: self.config.streams.video && !localVideoTrack, 
-    audio: self.config.streams.audio && !localAudioTrack 
+  var missingStreams = {
+    video: self.config.streams.video===true && !localVideoTrack,
+    audio: self.config.streams.audio===true && !localAudioTrack
   };
 
   if (missingStreams.audio || missingStreams.video) {
